@@ -30,19 +30,23 @@ const prefixVariants = cva("", {
 export interface DiffLineProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "prefix">,
     VariantProps<typeof diffLineVariants> {
+  type?: "removed" | "added" | "context";
   prefix?: string;
   children?: ReactNode;
 }
 
 const DiffLine = forwardRef<HTMLDivElement, DiffLineProps>(
-  ({ className, variant, prefix = " ", children, ...props }, ref) => {
+  ({ className, type, variant, prefix = " ", children, ...props }, ref) => {
+    const resolvedVariant = type || variant;
     return (
       <div
         ref={ref}
-        className={diffLineVariants({ variant, className })}
+        className={diffLineVariants({ variant: resolvedVariant, className })}
         {...props}
       >
-        <span className={prefixVariants({ variant })}>{prefix}</span>
+        <span className={prefixVariants({ variant: resolvedVariant })}>
+          {prefix}
+        </span>
         {children}
       </div>
     );

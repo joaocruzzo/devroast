@@ -1,130 +1,236 @@
+import {
+  AnalysisCardDescription,
+  AnalysisCardRoot,
+  AnalysisCardTitle,
+} from "@/components/ui/analysis-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { CodeBlock } from "@/components/ui/code-block";
 import { DiffLine } from "@/components/ui/diff-line";
+import {
+  LeaderboardRowCode,
+  LeaderboardRowLanguage,
+  LeaderboardRowRank,
+  LeaderboardRowRoot,
+  LeaderboardRowScore,
+} from "@/components/ui/leaderboard-row";
 import { ScoreRing } from "@/components/ui/score-ring";
 import { ToggleDemo } from "@/components/ui/toggle-demo";
 
 const buttonVariants = [
   "primary",
   "secondary",
-  "outline",
   "ghost",
   "destructive",
-  "link",
 ] as const;
+const buttonSizes = ["sm", "default", "lg"] as const;
+const badgeVariants = ["critical", "warning", "good"] as const;
 
-const buttonSizes = ["default", "sm", "lg", "icon"] as const;
-
-const badgeVariants = ["critical", "warning", "good", "verdict"] as const;
-
-const codeExample = `function calculateTotal(items) {
+const sampleCode = `function calculateTotal(items) {
   var total = 0;
-  for (var i = 0; i < items.length; i++) {
+  for (var i = 0; ...) {
     total = total + items[i].price;
   }
-  return total;
 }`;
 
-export default async function ComponentsPage() {
+export default function ComponentsPage() {
   return (
-    <div className="min-h-screen bg-bg-page p-8">
-      <h1 className="mb-8 font-mono text-3xl font-bold">UI Components</h1>
+    <div className="min-h-screen bg-bg-page p-12 space-y-16">
+      <header>
+        <h1 className="font-mono text-accent-green text-lg mb-2">
+          {"// component_library"}
+        </h1>
+        <p className="text-text-secondary text-sm">
+          Biblioteca de componentes UI do DevRoast
+        </p>
+      </header>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Button</h2>
-
-        <div className="mb-8">
-          <h3 className="mb-4 font-mono text-lg font-medium">Variants</h3>
-          <div className="flex flex-wrap gap-4">
+      {/* Button */}
+      <Section title="button" file="button.tsx">
+        <Subsection title="Variantes">
+          <div className="flex items-center gap-4 flex-wrap">
             {buttonVariants.map((variant) => (
               <Button key={variant} variant={variant}>
-                {variant}
+                {`$ ${variant}`}
               </Button>
             ))}
           </div>
-        </div>
+        </Subsection>
 
-        <div>
-          <h3 className="mb-4 font-mono text-lg font-medium">Sizes</h3>
-          <div className="flex flex-wrap items-center gap-4">
+        <Subsection title="Tamanhos">
+          <div className="flex items-end gap-4 flex-wrap">
             {buttonSizes.map((size) => (
               <Button key={size} size={size}>
-                {size === "icon" ? "Icon" : size}
+                {`$ size_${size}`}
               </Button>
             ))}
           </div>
-        </div>
-      </section>
+        </Subsection>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Badge</h2>
-        <div className="flex flex-wrap gap-6">
+        <Subsection title="Desabilitado">
+          <div className="flex items-center gap-4 flex-wrap">
+            {buttonVariants.map((variant) => (
+              <Button key={variant} variant={variant} disabled>
+                {`$ ${variant}`}
+              </Button>
+            ))}
+          </div>
+        </Subsection>
+      </Section>
+
+      {/* Toggle */}
+      <Section title="toggle" file="toggle.tsx">
+        <ToggleDemo />
+      </Section>
+
+      {/* Badge */}
+      <Section title="badge_status" file="badge.tsx">
+        <div className="flex items-center gap-6 flex-wrap">
           {badgeVariants.map((variant) => (
             <Badge key={variant} variant={variant}>
               {variant}
             </Badge>
           ))}
+          <Badge variant="critical">needs_serious_help</Badge>
         </div>
-      </section>
+      </Section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Toggle</h2>
-        <ToggleDemo />
-      </section>
+      {/* Analysis Card */}
+      <Section title="cards" file="analysis-card.tsx">
+        <div className="flex flex-col gap-4 max-w-lg">
+          <AnalysisCardRoot>
+            <Badge variant="critical">critical</Badge>
+            <AnalysisCardTitle>
+              using var instead of const/let
+            </AnalysisCardTitle>
+            <AnalysisCardDescription>
+              the var keyword is function-scoped rather than block-scoped, which
+              can lead to unexpected behavior and bugs. modern javascript uses
+              const for immutable bindings and let for mutable ones.
+            </AnalysisCardDescription>
+          </AnalysisCardRoot>
+          <AnalysisCardRoot>
+            <Badge variant="warning">warning</Badge>
+            <AnalysisCardTitle>
+              manual loop instead of array methods
+            </AnalysisCardTitle>
+            <AnalysisCardDescription>
+              using a for loop with index access is less readable than modern
+              array methods like reduce(), map(), or forEach().
+            </AnalysisCardDescription>
+          </AnalysisCardRoot>
+          <AnalysisCardRoot>
+            <Badge variant="good">good</Badge>
+            <AnalysisCardTitle>
+              function naming is descriptive
+            </AnalysisCardTitle>
+            <AnalysisCardDescription>
+              the function name calculateTotal clearly communicates its purpose,
+              making the code self-documenting.
+            </AnalysisCardDescription>
+          </AnalysisCardRoot>
+        </div>
+      </Section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Card</h2>
-        <Card>
-          <CardHeader>
-            <Badge variant="critical">
-              <span className="h-2 w-2 rounded-full bg-accent-red" />
-              critical
-            </Badge>
-          </CardHeader>
-          <CardTitle>using var instead of const/let</CardTitle>
-          <CardDescription>
-            the var keyword is function-scoped rather than block-scoped, which
-            can lead to unexpected behavior and bugs. modern javascript uses
-            const for immutable bindings and let for mutable ones.
-          </CardDescription>
-        </Card>
-      </section>
+      {/* Code Block */}
+      <Section title="code_block" file="code-block.tsx">
+        <div className="max-w-xl">
+          <CodeBlock
+            code={sampleCode}
+            lang="javascript"
+            filename="calculate.js"
+          />
+        </div>
+      </Section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Code Block</h2>
-        <CodeBlock code={codeExample} language="javascript" theme="vesper" />
-      </section>
-
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Diff Line</h2>
-        <div className="flex flex-col border border-border-primary rounded-md overflow-hidden max-w-xl">
-          <DiffLine variant="removed" prefix="-">
-            var total = 0;
-          </DiffLine>
-          <DiffLine variant="added" prefix="+">
-            const total = 0;
-          </DiffLine>
-          <DiffLine variant="context" prefix=" ">
-            for (let i = 0; i &lt; items.length; i++) {"{"}
+      {/* Diff Line */}
+      <Section title="diff_line" file="diff-line.tsx">
+        <div className="max-w-xl">
+          <DiffLine type="removed">var total = 0;</DiffLine>
+          <DiffLine type="added">const total = 0;</DiffLine>
+          <DiffLine type="context">
+            {"for (let i = 0; i < items.length; i++) {"}
           </DiffLine>
         </div>
-      </section>
+      </Section>
 
-      <section className="mb-12">
-        <h2 className="mb-4 font-mono text-2xl font-semibold">Score Ring</h2>
-        <div className="flex gap-8">
+      {/* Leaderboard Row */}
+      <Section title="table_row" file="leaderboard-row.tsx">
+        <div className="max-w-2xl">
+          <LeaderboardRowRoot>
+            <LeaderboardRowRank>#1</LeaderboardRowRank>
+            <LeaderboardRowScore value={2.1} />
+            <LeaderboardRowCode>
+              {"function calculateTotal(items) { var total = 0; ..."}
+            </LeaderboardRowCode>
+            <LeaderboardRowLanguage>javascript</LeaderboardRowLanguage>
+          </LeaderboardRowRoot>
+          <LeaderboardRowRoot>
+            <LeaderboardRowRank>#2</LeaderboardRowRank>
+            <LeaderboardRowScore value={5.4} />
+            <LeaderboardRowCode>
+              {"const fetchData = async () => { try { ... } catch {} }"}
+            </LeaderboardRowCode>
+            <LeaderboardRowLanguage>typescript</LeaderboardRowLanguage>
+          </LeaderboardRowRoot>
+          <LeaderboardRowRoot>
+            <LeaderboardRowRank>#3</LeaderboardRowRank>
+            <LeaderboardRowScore value={8.7} />
+            <LeaderboardRowCode>
+              {"def merge_sort(arr): if len(arr) <= 1: return arr"}
+            </LeaderboardRowCode>
+            <LeaderboardRowLanguage>python</LeaderboardRowLanguage>
+          </LeaderboardRowRoot>
+        </div>
+      </Section>
+
+      {/* Score Ring */}
+      <Section title="score_ring" file="score-ring.tsx">
+        <div className="flex items-center gap-12 flex-wrap">
           <ScoreRing score={3.5} />
-          <ScoreRing score={7.5} />
-          <ScoreRing score={1.2} />
+          <ScoreRing score={7.2} />
+          <ScoreRing score={1.0} />
         </div>
-      </section>
+      </Section>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  file,
+  children,
+}: {
+  title: string;
+  file: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-6">
+      <div>
+        <h2 className="font-mono text-text-primary text-base mb-1">
+          {`$ ${title}`}
+        </h2>
+        <p className="text-text-tertiary text-xs">src/components/ui/{file}</p>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Subsection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h3 className="text-text-secondary text-xs uppercase tracking-widest mb-4">
+        {title}
+      </h3>
+      {children}
     </div>
   );
 }
