@@ -239,9 +239,10 @@ type CodeEditorProps = {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  maxChars?: number;
 };
 
-function CodeEditor({ value, onChange, className }: CodeEditorProps) {
+function CodeEditor({ value, onChange, className, maxChars }: CodeEditorProps) {
   const [language, setLanguage] = useState<CodeEditorLanguage>("javascript");
   const [highlightedCode, setHighlightedCode] = useState<string>("");
   const [highlighter, setHighlighter] = useState<Highlighter | null>(null);
@@ -336,10 +337,6 @@ function CodeEditor({ value, onChange, className }: CodeEditorProps) {
   const lines = value.split("\n");
   const lineCount = Math.max(lines.length, 13);
 
-  const currentLanguageLabel = SUPPORTED_LANGUAGES.find(
-    (l) => l.value === language,
-  )?.label;
-
   return (
     <div
       className={twMerge(
@@ -401,7 +398,6 @@ function CodeEditor({ value, onChange, className }: CodeEditorProps) {
             {highlightedCode ? (
               <div
                 className="shiki-container"
-                // biome-ignore lint/security/noDangerouslySetInnerHtml: shiki generates trusted HTML from code strings
                 dangerouslySetInnerHTML={{ __html: highlightedCode }}
               />
             ) : (
@@ -426,6 +422,19 @@ function CodeEditor({ value, onChange, className }: CodeEditorProps) {
           />
         </div>
       </div>
+
+      {/* Footer with char count */}
+      {maxChars && (
+        <div className="flex items-center justify-end h-8 px-4 border-t border-border-primary bg-bg-surface">
+          <span
+            className={`font-mono text-xs ${
+              value.length > maxChars ? "text-accent-red" : "text-text-tertiary"
+            }`}
+          >
+            {value.length}/{maxChars}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -56,7 +56,7 @@ export default function HomePage() {
       </section>
 
       {/* Editor + Actions */}
-      <section className="w-full max-w-5xl px-10 pt-8">
+      <section className="w-[780px] px-10 pt-8">
         <HomeEditor />
       </section>
 
@@ -75,7 +75,7 @@ export default function HomePage() {
       <div className="h-15" />
 
       {/* Leaderboard Preview */}
-      <section className="flex flex-col gap-6 w-full max-w-5xl px-10 pb-15">
+      <section className="flex flex-col gap-6 w-[960px] px-10 pb-15">
         {/* Title Row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

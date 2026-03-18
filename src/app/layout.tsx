@@ -19,7 +19,7 @@ export default function RootLayout({
           logo="devroast"
           links={[{ label: "leaderboard", href: "/leaderboard" }]}
         />
-        <main className="mx-auto max-w-4xl px-10">{children}</main>
+        <main className="mx-auto px-10">{children}</main>
       </body>
     </html>
   );
