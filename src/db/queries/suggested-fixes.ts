@@ -6,6 +6,8 @@ import {
   suggestedFixes,
 } from "../schema";
 
+export type { NewSuggestedFix, SuggestedFix };
+
 export async function insertSuggestedFix(data: NewSuggestedFix) {
   const [row] = await db.insert(suggestedFixes).values(data).returning();
   return row as SuggestedFix;

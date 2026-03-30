@@ -89,81 +89,123 @@ const issueMessages: Record<string, string[]> = {
 function generateCodeSnippet(language: (typeof languages)[number]): string {
   const snippets: Record<string, string[]> = {
     javascript: [
-      "function foo() { eval(userInput); }",
-      "var x = 1; var x = 2; console.log(x);",
-      "for (var i = 0; i < 1000; i++) { fetch('/api/' + i); }",
-      "if (user.isAdmin = true) { grantAccess(); }",
-      "const arr = []; arr[99999] = 'x';",
+      `function getUserData(id) {
+  eval("var user = db.find(" + id + ")");
+  document.write(user);
+  eval("localStorage.setItem('token', user.password)");
+  return user;
+}`,
+      `const processData = async (input) => {
+  var result = [];
+  for (var i = 0; i < input.length; i++) {
+    var item = input[i];
+    await fetch('/api/process', { body: JSON.stringify(item) });
+    result.push(item);
+  }
+  return result;
+};`,
+      `function checkAdmin(user) {
+  if (user.role = "admin") {
+    console.log("Access granted");
+    window.location = "/admin";
+  }
+}`,
     ],
     typescript: [
-      "const x: any = 'hello'; x.foo.bar();",
-      "function add(a: number, b: number): string { return a + b; }",
-      "interface User { name: string; } const user = {} as User;",
-      "type Foo = string | number; const x: Foo = {};",
-      "async function getData() { return fetch('/api'); }",
+      `function calculate(items: any[]): string {
+  let total: any = 0;
+  for (let i = 0; i < items.length; i++) {
+    total += items[i].value;
+  }
+  return total;
+}`,
+      `async function fetchUser(id: any) {
+  const response = await fetch('/api/user/' + id);
+  const data = response.json();
+  return data;
+}`,
     ],
     python: [
-      "exec(user_input)",
-      "def foo(x): return x + 1",
-      "import pickle; data = pickle.loads(request.data)",
-      "for i in range(1000): requests.get(f'/api/{i}')",
-      "x = 1; x = 'one'; print(x)",
+      `def get_user(user_id):
+    query = "SELECT * FROM users WHERE id = " + str(user_id)
+    cursor.execute(query)
+    result = cursor.fetchall()
+    exec("print('User:', result)")
+    return result`,
+      `def process_items(items):
+    for item in items:
+        exec("result = item * 2")
+        requests.post('/api/save', data=item)
+    return True`,
     ],
     rust: [
-      "unsafe { *ptr.offset(1000); }",
-      'let mut x = 1; let x = 2; println!("{}", x);',
-      'fn foo() -> i32 { return "hello".to_string(); }',
-      "loop { }",
-      "unsafe impl Send for Foo {}",
+      `fn process_data(data: &str) -> String {
+    let mut result = String::new();
+    for i in 0..1000 {
+        result.push_str(data);
+    }
+    result
+}`,
     ],
     go: [
-      "func foo() error { return nil }",
-      'var m map[string]int; m["key"] = 1',
-      "go func() { }()",
-      "select {}",
-      'defer panic("oh no")',
+      `func handler(w http.ResponseWriter, r *http.Request) {
+    id := r.URL.Query()["id"][0]
+    query := "SELECT * FROM users WHERE id = " + id
+    row := db.QueryRow(query)
+    var user User
+    row.Scan(&user)
+    json.NewEncoder(w).Encode(user)
+}`,
     ],
     java: [
-      'String x = "1"; int y = Integer.parseInt(x);',
-      "for (int i = 0; i < list.size(); i++) { list.get(i); }",
-      "public static void main(String args[]) { }",
-      "catch (Exception e) { }",
-      "new Thread(new Runnable() { }).start();",
+      `public String getData(String id) {
+    String query = "SELECT * FROM data WHERE id = " + id;
+    Statement stmt = conn.createStatement();
+    ResultSet rs = stmt.executeQuery(query);
+    rs.next();
+    return rs.getString("value");
+}`,
     ],
     csharp: [
-      "var x = 1; var x = 2;",
-      "foreach (var item in collection) { await db.SaveAsync(item); }",
-      "public class Foo { public Foo() { new Foo(); } }",
-      "try { } catch (Exception) { }",
-      'var dynamic x = "hello"; x.foo();',
+      `public IActionResult GetUser(string id) {
+    var query = "SELECT * FROM Users WHERE Id = " + id;
+    var result = _context.Database.ExecuteSqlRaw(query);
+    return Ok(result);
+}`,
     ],
     cpp: [
-      "int* p = nullptr; p[100] = 5;",
-      "for (int i = 0; i < 1000000; i++) new char[1000];",
-      "#define PI 3.14",
-      "using namespace std;",
-      "char* str = \"hello\"; str[0] = 'H';",
+      `void process(char* input) {
+    char buffer[64];
+    strcpy(buffer, input);
+    printf(buffer);
+}`,
     ],
     sql: [
-      "SELECT * FROM users WHERE 1=1",
-      "SELECT * FROM users WHERE id = " + faker.string.numeric(5),
-      "INSERT INTO users VALUES (1, 'admin', 'password123')",
-      "DELETE FROM users -- oops",
-      "SELECT * FROM orders, products, customers WHERE 1=1",
+      `SELECT u.id, u.name, u.password, u.secret_token
+FROM users u
+JOIN admin a ON a.user_id = u.id
+WHERE 1=1`,
+      `SELECT * FROM products, orders, customers, inventory
+WHERE products.id = orders.product_id
+AND customers.id = orders.customer_id`,
+      `DELETE FROM users WHERE id = ` +
+        faker.string.numeric(5) +
+        `
+AND status = 'active'`,
     ],
     html: [
-      "<div></div><div></div><div></div><div></div><div></div>",
-      "<script>eval(userInput)</script>",
-      '<img src="broken.png" onerror="alert(1)">',
-      '<div style="font-size: 1px"></div>',
-      '<a href="javascript:void(0)">click me</a>',
+      `<div class="container">
+  <script>eval(userInput)</script>
+  <img src="x" onerror="fetch('/hack?c='+document.cookie)">
+  <div style="background: expression(alert('xss'))">
+</div>`,
     ],
     css: [
-      ".foo { color: red; color: blue; }",
-      ".container div div div div { }",
-      "body { margin: -100px; }",
-      "* { !important; }",
-      ".class { font-size: 999999px; }",
+      `.parent .child .subchild .deep .nested .class {
+  color: red !important;
+  font-size: 999999px;
+  margin: -100px;
+}`,
     ],
   };
 
@@ -181,10 +223,157 @@ function generateIssueMessage(severity: (typeof severities)[number]) {
   };
 }
 
+function generateFixedCode(
+  code: string,
+  language: string,
+): { originalCode: string; fullCode: string } {
+  const lines = code.split("\n");
+  const fixedLines = [...lines];
+
+  if (language === "javascript" || language === "typescript") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (fixedLines[i].includes("eval(")) {
+        fixedLines[i] = fixedLines[i].replace(
+          /eval\(/g,
+          "/* eslint-disable no-eval */ (0, Function)(",
+        );
+      }
+      if (fixedLines[i].includes("var ") && !fixedLines[i].includes("var ")) {
+        fixedLines[i] = fixedLines[i].replace(/\bvar\b/g, "const");
+      }
+      if (fixedLines[i].includes("document.write")) {
+        fixedLines[i] = fixedLines[i].replace(
+          "document.write",
+          "// Use DOM manipulation instead",
+        );
+      }
+      if (fixedLines[i].includes("localStorage.setItem")) {
+        fixedLines[i] =
+          "// " +
+          fixedLines[i].replace(
+            "localStorage.setItem",
+            "Consider encrypting before storing",
+          );
+      }
+      if (fixedLines[i].includes("window.location")) {
+        fixedLines[i] =
+          "// " + fixedLines[i] + " // Use history.pushState instead";
+      }
+      if (fixedLines[i].includes(": any")) {
+        fixedLines[i] = fixedLines[i].replace(": any", ": unknown");
+      }
+      if (
+        fixedLines[i].includes("await fetch") &&
+        fixedLines[i].includes(".json()")
+      ) {
+        fixedLines[i] = fixedLines[i].replace(".json()", ".json() as YourType");
+      }
+    }
+  } else if (language === "python") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (fixedLines[i].includes("exec(")) {
+        fixedLines[i] =
+          "# " + fixedLines[i] + " // Use ast.literal_eval instead";
+      }
+      if (fixedLines[i].includes("cursor.execute")) {
+        fixedLines[i] = fixedLines[i].replace(
+          "cursor.execute",
+          "# Use parameterized queries: cursor.execute",
+        );
+      }
+      if (fixedLines[i].includes("requests.post")) {
+        fixedLines[i] = fixedLines[i].replace(
+          "requests.post",
+          "# Use session.post with timeout: requests.post",
+        );
+      }
+    }
+  } else if (language === "rust") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (fixedLines[i].includes("String::new()")) {
+        fixedLines[i] = fixedLines[i].replace(
+          "String::new()",
+          "String::with_capacity(size_hint)",
+        );
+      }
+      if (
+        fixedLines[i].includes("push_str(") &&
+        i > 0 &&
+        fixedLines[i - 1].includes("for")
+      ) {
+        fixedLines[i] = "// Consider using iterator: " + fixedLines[i];
+      }
+    }
+  } else if (language === "go") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (
+        fixedLines[i].includes("db.QueryRow") &&
+        fixedLines[i].includes("+ id")
+      ) {
+        fixedLines[i] = fixedLines[i].replace("+ id", '+ "?"');
+      }
+      if (fixedLines[i].includes("json.NewEncoder")) {
+        fixedLines[i] = "// Add error handling: " + fixedLines[i];
+      }
+    }
+  } else if (language === "java" || language === "csharp") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (
+        fixedLines[i].includes("Statement") &&
+        fixedLines[i].includes("executeQuery")
+      ) {
+        fixedLines[i] = "// Use PreparedStatement: " + fixedLines[i];
+      }
+      if (
+        fixedLines[i].includes("ExecuteSqlRaw") ||
+        fixedLines[i].includes("executeSqlRaw")
+      ) {
+        fixedLines[i] = "// Use parameterized queries: " + fixedLines[i];
+      }
+    }
+  } else if (language === "cpp") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (fixedLines[i].includes("strcpy")) {
+        fixedLines[i] = "// Use strncpy or std::string: " + fixedLines[i];
+      }
+      if (fixedLines[i].includes("printf(") && !fixedLines[i].includes("%")) {
+        fixedLines[i] = "// Sanitize input: " + fixedLines[i];
+      }
+    }
+  } else if (language === "html") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (
+        fixedLines[i].includes("eval(") ||
+        fixedLines[i].includes("onerror")
+      ) {
+        fixedLines[i] = "<!-- " + fixedLines[i] + " -->";
+      }
+      if (fixedLines[i].includes("expression(")) {
+        fixedLines[i] = "/* " + fixedLines[i] + " */";
+      }
+    }
+  } else if (language === "css") {
+    for (let i = 0; i < fixedLines.length; i++) {
+      if (fixedLines[i].includes("!important")) {
+        fixedLines[i] =
+          "/* Remove !important: */ " + fixedLines[i].replace("!important", "");
+      }
+      if (parseInt(fixedLines[i].match(/\d+/)?.[0] || "0") > 100) {
+        fixedLines[i] = "/* Reasonable value: */ " + fixedLines[i];
+      }
+    }
+  }
+
+  const originalCode = lines.join("\n");
+  const fullCode = fixedLines.join("\n");
+
+  return { originalCode, fullCode };
+}
+
 async function seed() {
   console.log("🌱 Starting seed...");
 
-  const totalToInsert = 100;
+  const totalToInsert = 20;
   let inserted = 0;
 
   for (let i = 0; i < totalToInsert; i++) {
@@ -236,11 +425,13 @@ async function seed() {
         })
         .returning();
 
-      if (severity !== "good" && faker.datatype.boolean()) {
+      if (severity !== "good") {
+        const { originalCode, fullCode } = generateFixedCode(code, language);
         await db.insert(suggestedFixes).values({
           issueId: issue.id,
-          originalCode: code.split("\n")[0] || code,
-          fixedCode: code.split("\n")[0]?.replace(/bad/g, "good") || code,
+          originalCode,
+          fullCode,
+          diffJson: "",
           explanation: faker.lorem.sentence(),
         });
       }

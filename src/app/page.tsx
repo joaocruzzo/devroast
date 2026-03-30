@@ -1,43 +1,65 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import type { BundledLanguage } from "shiki";
+import { codeToHtml } from "shiki";
+import { LeaderboardLoading } from "@/components/ui/leaderboard-rows";
+import { LeaderboardTableWithDelay } from "@/components/ui/leaderboard-table-with-delay";
 import {
-  LeaderboardRowCode,
-  LeaderboardRowLanguage,
-  LeaderboardRowRank,
-  LeaderboardRowRoot,
-  LeaderboardRowScore,
-} from "@/components/ui/leaderboard-row";
+  getLeaderboard,
+  type LeaderboardEntry,
+} from "@/db/queries/leaderboard";
 import { HomeEditor } from "./home-editor";
+import { HomeStats } from "./home-stats";
 
-const leaderboardEntries = [
-  {
-    rank: 1,
-    score: 1.2,
-    lines: [
-      'eval(prompt("enter code"))',
-      "document.write(response)",
-      "// trust the user lol",
-    ],
-    language: "javascript",
-  },
-  {
-    rank: 2,
-    score: 1.8,
-    lines: [
-      "if (x == true) { return true; }",
-      "else if (x == false) { return false; }",
-      "else { return !false; }",
-    ],
-    language: "typescript",
-  },
-  {
-    rank: 3,
-    score: 2.1,
-    lines: ["SELECT * FROM users WHERE 1=1", "-- TODO: add authentication"],
-    language: "sql",
-  },
-];
+const languageMap: Record<string, BundledLanguage> = {
+  javascript: "javascript",
+  typescript: "typescript",
+  sql: "sql",
+  python: "python",
+  rust: "rust",
+  go: "go",
+};
 
-export default function HomePage() {
+async function processCodePreview(code: string, language: string) {
+  const lines = code.split("\n");
+  const htmlLines = await Promise.all(
+    lines.map((line) =>
+      codeToHtml(line, {
+        lang: (languageMap[language] || "javascript") as BundledLanguage,
+        theme: "vesper",
+      }),
+    ),
+  );
+  return {
+    htmlLines,
+    isCollapsible: lines.length > 3,
+    totalLines: lines.length,
+  };
+}
+
+function _scoreColor(score: number): string {
+  if (score <= 3) return "text-accent-red";
+  if (score <= 6) return "text-accent-amber";
+  return "text-accent-green";
+}
+
+async function LeaderboardContent() {
+  const leaderboardEntries = await getLeaderboard({
+    limit: 3,
+    offset: 0,
+  });
+
+  const enrichedEntries = await Promise.all(
+    leaderboardEntries.map(async (entry: LeaderboardEntry) => ({
+      ...entry,
+      preview: await processCodePreview(entry.code, entry.language),
+    })),
+  );
+
+  return <LeaderboardTableWithDelay entries={enrichedEntries} />;
+}
+
+export default async function HomePage() {
   return (
     <main className="flex flex-col items-center">
       {/* Hero */}
@@ -55,27 +77,19 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* Editor + Actions */}
-      <section className="w-[780px] px-10 pt-8">
+      {/* Editor */}
+      <section className="w-[780px] pt-8">
         <HomeEditor />
       </section>
 
-      {/* Footer Stats */}
-      <div className="flex items-center gap-6 justify-center pt-8">
-        <span className="font-mono text-xs text-text-tertiary">
-          2,847 codes roasted
-        </span>
-        <span className="font-mono text-xs text-text-tertiary">·</span>
-        <span className="font-mono text-xs text-text-tertiary">
-          avg score: 4.2/10
-        </span>
-      </div>
+      {/* Stats */}
+      <HomeStats />
 
-      {/* Spacer */}
-      <div className="h-15" />
+      {/* Spacer - 60px between Stats and Leaderboard */}
+      <div className="h-[60px]" />
 
       {/* Leaderboard Preview */}
-      <section className="flex flex-col gap-6 w-[960px] px-10 pb-15">
+      <section className="flex flex-col gap-6 w-full max-w-5xl px-10 pb-15">
         {/* Title Row */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -91,7 +105,7 @@ export default function HomePage() {
             href="/leaderboard"
             className="font-mono text-xs text-text-secondary border border-border-primary px-3 py-1.5 hover:bg-bg-surface transition-colors"
           >
-            $ view_all &gt;&gt;
+            $ view_all {">>"}
           </Link>
         </div>
 
@@ -113,52 +127,25 @@ export default function HomePage() {
             <span className="flex-1 font-mono text-xs font-medium text-text-tertiary">
               code
             </span>
-            <span className="w-24 font-mono text-xs font-medium text-text-tertiary text-right">
+            <span className="w-24 font-mono text-xs font-medium text-text-tertiary">
               lang
             </span>
           </div>
 
-          {/* Table Rows */}
-          {leaderboardEntries.map((entry, index) => (
-            <LeaderboardRowRoot
-              key={entry.rank}
-              border={index < leaderboardEntries.length - 1}
-            >
-              <LeaderboardRowRank
-                className={
-                  entry.rank === 1 ? "text-accent-amber" : "text-text-secondary"
-                }
-              >
-                #{entry.rank}
-              </LeaderboardRowRank>
-              <LeaderboardRowScore value={entry.score} />
-              <LeaderboardRowCode>
-                {entry.lines.map((line) => (
-                  <span
-                    key={line}
-                    className={`font-mono text-xs ${
-                      line.startsWith("//") || line.startsWith("--")
-                        ? "text-text-tertiary"
-                        : "text-text-primary"
-                    }`}
-                  >
-                    {line}
-                  </span>
-                ))}
-              </LeaderboardRowCode>
-              <LeaderboardRowLanguage>{entry.language}</LeaderboardRowLanguage>
-            </LeaderboardRowRoot>
-          ))}
+          {/* Table Rows with Suspense */}
+          <Suspense fallback={<LeaderboardLoading />}>
+            <LeaderboardContent />
+          </Suspense>
         </div>
 
-        {/* Fade Hint */}
+        {/* Stats Footer */}
         <p className="font-mono text-xs text-text-tertiary text-center">
-          showing top 3 of 2,847 ·{" "}
+          showing top 3 ·{" "}
           <Link
             href="/leaderboard"
             className="text-text-secondary hover:text-text-primary transition-colors"
           >
-            view full leaderboard &gt;&gt;
+            view full leaderboard {">>"}
           </Link>
         </p>
       </section>

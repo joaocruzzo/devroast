@@ -2,6 +2,8 @@ import { sql } from "drizzle-orm";
 import { db } from "../index";
 import { type Analysis, analyses, type NewAnalysis } from "../schema";
 
+export type { Analysis, NewAnalysis };
+
 export async function insertAnalysis(data: NewAnalysis) {
   const [row] = await db.insert(analyses).values(data).returning();
   return row as Analysis;

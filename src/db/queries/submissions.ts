@@ -2,6 +2,8 @@ import { sql } from "drizzle-orm";
 import { db } from "../index";
 import { type NewSubmission, type Submission, submissions } from "../schema";
 
+export type { NewSubmission, Submission };
+
 export async function insertSubmission(data: NewSubmission) {
   const [row] = await db.insert(submissions).values(data).returning();
   return row as Submission;

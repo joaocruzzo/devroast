@@ -5,6 +5,7 @@ export const analyses = pgTable("analyses", {
   submissionId: uuid("submission_id").notNull(),
   score: real("score").notNull(),
   overallFeedback: text("overall_feedback").notNull(),
+  roastQuote: text("roast_quote"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

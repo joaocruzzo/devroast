@@ -1,80 +1,38 @@
-import { cn } from "@/lib/utils";
-
-type DiffLine = {
-  type: "context" | "added" | "removed";
-  content: string;
-  lineNumber?: number;
-};
+import { DiffLine, type DiffLineData } from "./diff-line";
 
 type DiffBlockProps = {
   filename: string;
-  lines: DiffLine[];
+  lines: DiffLineData[];
   className?: string;
 };
 
 function DiffBlock({ filename, lines, className }: DiffBlockProps) {
   return (
     <div
-      className={cn("border border-border-primary overflow-hidden", className)}
+      className={`border border-border-primary overflow-hidden bg-bg-input ${className ?? ""}`}
     >
-      {/* Header */}
       <div className="flex items-center h-10 px-4 border-b border-border-primary bg-bg-surface">
         <span className="font-mono text-xs text-text-secondary">
           {filename}
         </span>
       </div>
 
-      {/* Body */}
-      <div className="flex bg-bg-input font-mono text-xs">
-        {/* Line numbers */}
-        <div className="flex flex-col items-end w-12 py-1 px-3 border-r border-border-primary bg-bg-surface select-none">
-          {lines.map((line, i) => (
-            <span key={i} className="h-7 leading-7 text-text-tertiary">
-              {line.lineNumber || i + 1}
-            </span>
-          ))}
-        </div>
-
-        {/* Diff content */}
-        <div className="flex-1 py-1 px-4">
-          {lines.map((line, i) => (
-            <div
-              key={i}
-              className={cn(
-                "h-7 leading-7",
-                line.type === "added" && "bg-accent-green/10",
-                line.type === "removed" && "bg-accent-red/10",
-              )}
-            >
-              <span
-                className={cn(
-                  "mr-3",
-                  line.type === "added" && "text-accent-green",
-                  line.type === "removed" && "text-accent-red",
-                  line.type === "context" && "text-text-tertiary",
-                )}
-              >
-                {line.type === "added"
-                  ? "+"
-                  : line.type === "removed"
-                    ? "-"
-                    : " "}
-              </span>
-              <span
-                className={cn(
-                  line.type === "removed" && "text-accent-red/80",
-                  line.type === "added" && "text-accent-green/80",
-                  line.type === "context" && "text-text-primary",
-                )}
-              >
-                {line.content}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className="py-1 font-mono text-xs">
+        {lines.map((line, i) => (
+          <DiffLine
+            key={i}
+            type={line.type}
+            prefix={
+              line.type === "added" ? "+" : line.type === "removed" ? "-" : " "
+            }
+          >
+            {line.content}
+          </DiffLine>
+        ))}
       </div>
     </div>
   );
 }
 
+export type { DiffLineData };
 export { DiffBlock };

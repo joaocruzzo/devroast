@@ -89,7 +89,7 @@ const LeaderboardRowCode = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn("flex-1 flex flex-col gap-0.5", className)}
+      className={cn("flex-1 flex flex-col gap-2.5", className)}
       {...props}
     />
   );
