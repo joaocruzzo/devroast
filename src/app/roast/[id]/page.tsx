@@ -11,20 +11,14 @@ export async function generateMetadata({ params }: PageProps) {
   const submission = await getSubmissionWithAnalysis(id);
 
   if (!submission) {
-    return { title: "DevRoast - Not Found" };
+    return { title: "devroast - not found" };
   }
 
-  const getVerdict = (score: number) => {
-    if (score >= 7) return "verdict_excellent_code";
-    if (score >= 4) return "verdict_needs_improvement";
-    return "verdict_needs_serious_help";
-  };
-
   return {
-    title: `DevRoast - Score: ${submission.score}/10`,
+    title: `devroast - score: ${submission.score}/10`,
     description: submission.overallFeedback.slice(0, 150),
     openGraph: {
-      title: `DevRoast - Score: ${submission.score}/10`,
+      title: `devroast - score: ${submission.score}/10`,
       description: submission.overallFeedback.slice(0, 150),
       type: "website",
       images: [
@@ -38,7 +32,7 @@ export async function generateMetadata({ params }: PageProps) {
     },
     twitter: {
       card: "summary_large_image",
-      title: `DevRoast - Score: ${submission.score}/10`,
+      title: `devroast - score: ${submission.score}/10`,
       description: submission.overallFeedback.slice(0, 150),
       images: [`/roast/${id}/opengraph-image`],
     },
