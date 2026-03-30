@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import Link from "next/link";
 
 const navbarVariants = cva(
   "flex h-14 w-full items-center justify-between border-b border-border-primary bg-bg-page px-10",
@@ -32,14 +33,17 @@ export function Navbar({
 }: NavbarProps) {
   return (
     <nav className={navbarVariants({ size, className })} {...props}>
-      <div className="flex items-center gap-2">
+      <Link
+        href="/"
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+      >
         <span className="font-mono text-xl font-bold text-accent-green">
           &gt;
         </span>
         <span className="font-mono text-lg font-medium text-text-primary">
           {logo}
         </span>
-      </div>
+      </Link>
       <div className="flex items-center gap-6">
         {links.map((link) => (
           <a

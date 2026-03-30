@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Providers } from "@/app/providers";
 import { Navbar } from "@/components/ui/navbar";
 import "./globals.css";
 
@@ -19,7 +20,9 @@ export default function RootLayout({
           logo="devroast"
           links={[{ label: "leaderboard", href: "/leaderboard" }]}
         />
-        <main className="mx-auto px-10">{children}</main>
+        <Providers>
+          <main className="mx-auto px-10">{children}</main>
+        </Providers>
       </body>
     </html>
   );
